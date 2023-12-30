@@ -1,0 +1,399 @@
+<html>
+<head>
+    <style>
+        body {
+            background-color: #ddd;
+            width: 99%;
+            border:0px;
+        }
+        nav.upper {
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background-color: rgba(204, 204, 204, 0.75);
+            z-index: 10;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        nav.lower {
+            width: 100%;
+            position: sticky;
+            bottom: 5%;
+            background-color: rgba(204, 204, 204, 0.75);
+            z-index: 10;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: left;
+        }
+        #image-container {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-content: space-between;
+        }
+        div.centerImg {
+            height: 200px;
+            width: 200px;
+            vertical-align: middle;
+            align-items: center;
+            display: flex;
+        }
+        img {
+            width: 100%;
+            max-width: 200px;
+            max-height: 200px;
+        }
+        nav {
+            width: 100%;
+        }
+        .search-box {
+            width: 40%;
+        }
+        .search-button {
+            width: 10%;
+            text-align: center;
+            padding-top: 5px;
+            color:#d39393;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.75);
+        }
+        /* Default style */
+        .search-meta, .search-categories,.search-filename {
+            width: 4%;
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ced4da;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        /* Style when toggled */
+        .search-meta[data-toggled="true"], .search-categories[data-toggled="true"], .search-filename[data-toggled="true"] {
+            background-color: #217521;
+            color: #fff;
+            border-color: #55FF55;
+            box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.33);
+        }
+        .search-categories[data-toggled="false"] {
+            background-color: #b2ccf3 !important;
+        }
+        #button-container button[data-toggled="true"],.search-categories[data-toggled="true"] {
+            background-color: #b2ccf3 !important;
+            border: 1px solid #0080ff !important;
+            color:black !important;
+        }
+        #button-container button[data-toggled="true"]
+        {
+            box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.33);
+        }
+        button:not(nav.lower button) {
+            border-radius: 4px;
+        }
+        button#next-button {
+            left:41%;
+        }
+        #button-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        #button-container button {
+            flex: 1;
+            margin: 0 1px;
+            background-color: #b2ccf3;
+            border: 1px solid #0080ff;
+        }
+    </style>
+    <script src="C:\\tmp\\logos\\imageSourcesCategoriesMeta.js"></script>
+    <script>
+        var imagesPerPage = 36; // Change this to display more or fewer images per page
+        var currentPage = 1;
+        var container;    // Define the variable at the top level
+        var filteredImagesBy_categories;
+        
+        function hideImages() {
+            container.innerHTML = '';
+            // Remove all existing images from the container
+            // while (container.firstChild) {
+            //     container.removeChild(container.firstChild);
+            // }
+            //we might look at this later to manually remove event listeners if that ends up being an obvious problem, but for now, just clear the container
+        }
+        function displayImages() {
+            // Calculate the start and end indices for the images to display
+            var start = (currentPage - 1) * imagesPerPage;
+            var end = start + imagesPerPage;
+            // Add the images for the current page to the container
+            for (var i = start; i < end && i < imageSourcesCategoriesMeta.data.length; i++) {
+                var div = document.createElement('div');
+                div.className = 'centerImg';
+                var img = document.createElement('img');
+                img.src = imageSourcesCategoriesMeta.data[i].src;
+                img.alt = imageSourcesCategoriesMeta.data[i].metadata.search;
+                img.title = imageSourcesCategoriesMeta.data[i].metadata.search;
+                //categories are more involved as there are somtimes multiple
+                var categories = imageSourcesCategoriesMeta.data[i].metadata.categories;
+                var categoriesArray = (categories || '').split(' '); // Split the categories string by spaces into an array
+                // Wrap each word in quotes and join them back with spaces
+                categories = categoriesArray.map(function(word) {
+                    return word;
+                }).join(',');
+
+                // Add the modified categories string as a class if defined
+                (categories) ? img.classList.add(categories) : "";
+
+                div.appendChild(img);
+                div.addEventListener('click', function(event) {
+                    obj = window.chrome.webview.hostObjects.ahk;
+                    // Get the src of the img contained within the div
+                    (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
+                });
+                container.appendChild(div);
+            }
+            document.querySelector('#page-count').innerText = currentPage + ' of ' + Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage);
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            var searchBox = document.querySelector('.search-box');
+            function triggerInputEvent() {
+               searchBox.dispatchEvent(new Event('input'));
+            }
+            container = document.getElementById('image-container');
+            displayImages();    // Call displayImages to display the first page of images
+            var categories = ["flex", "Gas-Convenience", "auto", "grocery", "QSR", "cell", "roads", "hardware", "medical", "uncommon", "mall", "gym", "furniture", "bank", "home", "service", "hotel-motel", "brokerage", "RX", "clothing", "DollarStores", "big-box", "banks", "retail", "landmark"];
+            var buttoncontainer = document.getElementById('button-container');
+            categories.forEach(function(category) {
+                var button = document.createElement('button');
+                button.id = category + '-button';
+                button.textContent = category;
+                buttoncontainer.appendChild(button);
+                button.setAttribute('data-toggled', 'false');
+                button.addEventListener('click', function(event) {
+                    var category = event.target.textContent;
+                    // Filter the images by category
+                    filteredImagesBy_categories = imageSourcesCategoriesMeta.data.filter(function(image) {
+                        return image.metadata && image.metadata.categories && image.metadata.categories.toLowerCase().includes(category.toLowerCase());
+                    });
+                    // Clear the image container defined above
+                    container.innerHTML = '';
+                    processImages(filteredImagesBy_categories);
+                    // Get all buttons
+                    var buttons = document.querySelectorAll('button');
+                    // Set all buttons' data-toggled attribute to false
+                    buttons.forEach(function(otherButton) {
+                        otherButton.setAttribute('data-toggled', 'false');
+                    });
+                    // Set the clicked button's data-toggled attribute to true
+                    this.setAttribute('data-toggled', 'true');
+                });
+            });
+            function showNotification(message) {
+                var notification = document.getElementById('notification');
+                notification.innerText = message;
+                notification.style.display = 'block';
+
+                setTimeout(function() {
+                    notification.style.display = 'none';
+                }, 1500); // Hide the notification after 1.5 seconds
+            }
+            // Event listener for first button
+            document.getElementById('first-button').addEventListener('click', function() {
+                if (currentPage!=1) {
+                    hideImages();
+                    currentPage=1;
+                    displayImages();
+                }
+                else {
+                    showNotification("You are already on the first page");
+                }
+            });
+            // Event listener for prev button
+            document.getElementById('prev-button').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    hideImages();
+                    currentPage--;
+                    displayImages();
+                }
+                else {
+                    showNotification("You are already on the first page");
+                }
+            });
+            // Event listener for next button
+            document.getElementById('next-button').addEventListener('click', function() {
+                if (currentPage <= Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage) - 1) {
+                    hideImages();
+                    currentPage++;
+                    displayImages();
+                }
+                else {
+                    showNotification("You are already on the last page.");
+                }
+            });
+            // Event listener for last button
+            document.getElementById('last-button').addEventListener('click', function() {
+                if (currentPage!=Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage)) {
+                    hideImages();
+                    currentPage=Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage);
+                    displayImages();
+                }
+                else {
+                    showNotification("You are already on the last page.");
+                }
+            });
+            searchBox.focus();
+
+        searchBox.addEventListener('focus', function(event) {
+            if (this.value == 'Search...') {
+                this.value = '';
+            }
+        });
+        function processImages(images) {
+            images.forEach(function(image) {
+                var div = document.createElement('div');
+                div.className = 'centerImg';
+                var img = document.createElement('img');
+                img.src = image.src;
+                img.alt = image.metadata.search;                
+                var categories = image.metadata.categories;
+                //split on space to get array of categories if any
+                var categoriesArray = (categories || '').split(' ');
+                // join them back with commas
+                var categories = categoriesArray.map(function(word) {
+                    return word;
+                }).join(',');
+                // Add the modified categories string as a class if defined
+                (categories) ? img.classList.add(categories) : "";
+                div.appendChild(img);
+                div.addEventListener('click', function(event) {
+                    obj = window.chrome.webview.hostObjects.ahk;
+                    // Get the src of the img contained within the div
+                    (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
+                });
+                container.appendChild(div);
+            });
+        }
+        searchBox.addEventListener('input', function(event) {
+            //default to src
+            var filteredImagesBy_src = imageSourcesCategoriesMeta.data.filter(function(image) {
+                return image.src && image.src.toLowerCase().includes(searchBox.value.toLowerCase());
+            });
+            //if checkbox is checked, search metadata
+            var filteredImagesBy_search = imageSourcesCategoriesMeta.data.filter(function(image) {
+                return image.metadata && image.metadata.search && image.metadata.search.toLowerCase().includes(searchBox.value.toLowerCase());
+            });
+            //if checkbox is checked, search categories
+            filteredImagesBy_categories = imageSourcesCategoriesMeta.data.filter(function(image) {
+                return image.metadata && image.metadata.categories && image.metadata.categories.toLowerCase().includes(searchBox.value.toLowerCase());
+            });
+            // Clear the image container defined above
+            container.innerHTML = '';
+            // Display the filtered images depending on state of pressed input buttons, search-meta, search-categories, search-filename
+            var imagesToProcess;
+            if (document.querySelector(".search-meta").getAttribute('data-toggled') === 'true') {
+                imagesToProcess = filteredImagesBy_search;
+            } else if (document.querySelector(".search-categories").getAttribute('data-toggled') === 'true') {
+                imagesToProcess = filteredImagesBy_categories;
+            } else {
+                imagesToProcess = filteredImagesBy_src;  // default to src search-filename
+            }
+            processImages(imagesToProcess);
+        });
+        function toggleButton(buttonClass, otherButtonClasses) {
+            var button = document.querySelector(buttonClass);
+            button.setAttribute('data-toggled', 'true');
+
+            otherButtonClasses.forEach(function(otherButtonClass) {
+                var otherButton = document.querySelector(otherButtonClass);
+                otherButton.setAttribute('data-toggled', 'false');
+            });
+        }
+
+        document.querySelector('.search-meta').addEventListener('click', function() {
+            toggleButton('.search-meta', ['.search-categories', '.search-filename']);
+        });
+
+        document.querySelector('.search-categories').addEventListener('click', function() {
+            toggleButton('.search-categories', ['.search-meta', '.search-filename']);
+        });
+
+        document.querySelector('.search-filename').addEventListener('click', function() {
+            toggleButton('.search-filename', ['.search-meta', '.search-categories']);
+        });
+
+        document.addEventListener('keydown', function(event) {
+            var searchBox = document.querySelector('.search-box');
+            if (document.activeElement !== searchBox) {
+                // Ignore special keys
+                if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
+                    searchBox.focus();
+                    searchBox.value += event.key;
+                    event.preventDefault();
+                    triggerInputEvent();
+                }
+                if (document.activeElement !== searchBox) {
+                    if (event.key === 'ArrowLeft') {
+                        document.getElementById('prev-button').click();
+                        event.preventDefault();
+                    }
+                    if (event.key === 'ArrowRight') {
+                        document.getElementById('next-button').click();
+                        event.preventDefault();
+                    }
+                }
+            }
+            // If Escape key is pressed, clear the searchBox
+            if (event.key === 'Escape') {
+                searchBox.value = '';
+                triggerInputEvent();
+                //set pagination back up, dont issue a click, use functions
+                hideImages();
+                currentPage=1;
+                displayImages();
+                document.querySelectorAll('nav.lower button').forEach(function(button) {
+                    button.setAttribute('data-toggled', 'false');
+                });
+            }
+            // If Alt + F is pressed
+            if (event.altKey && event.key === 'f') {
+                document.querySelector('.search-filename').click();
+            }
+            // If Alt + T is pressed
+            if (event.altKey && event.key === 't') {
+                document.querySelector('.search-meta').click();
+            }
+            // If Alt + C is pressed
+            if (event.altKey && event.key === 'c') {
+                document.querySelector('.search-categories').click();
+            }
+        });
+    });
+    </script>
+</head>
+<body>
+    <nav class="upper">
+        <label for="search-box">Search:</label>
+        <input type="input" value="" class="search-box" />
+        <span class="search-button">just start typing!</span>
+        <label for="buttons" style="margin-left: 5%;"><em>Search by only one of the following: </em></label>
+        <input type="button" value="File" class="search-filename" title="Click here to search by file name matching only" data-toggled="true"/>
+        <input type="button" value="Terms" class="search-meta" title="Click here to search only by hidden search terms - hover over an image to see its search terms" data-toggled="false"/>
+        <input type="button" value="Cat." class="search-categories" title="Click here to search only by categories, among those you see at the bottom in blue" data-toggled="false"/>
+    </nav>
+    <div id="image-container"></div>
+    <nav class="lower">
+        <button id="first-button">First</button>
+        <button id="prev-button">Previous</button>
+        <button id="next-button">Next</button>
+        <button id="last-button">Last</button>
+        <span id="page-count">1</span>
+        <span style="margin-left:5%;font-style: italic;">Categories below - themantic:</span>
+        <div id="button-container"></div>
+        <span style="font-weight: bold;">Just hit esc to start over</span>
+    </nav>
+    <div id="notification" style="display: none; position: fixed; bottom: 20px; right: 20px; padding: 10px; background-color: #f44336; color: white;">
+        This is a notification.
+    </div>
+</body>
+</html>
