@@ -9,7 +9,7 @@ https://github.com/thqby/ahk2_lib
 For the Excel File macro to work:
 https://github.com/VBA-tools/VBA-JSON
 
-and even though it gives you an error, I believe you not only need to import the createJSON.bas, but I think you also need to Tools>Reference it (which will error, ignore it as otherwise I couldnt get it to run on two machines)
+and even though it gives you an error, I believe you not only need to import the https://github.com/VBA-tools/VBA-JSON/blob/master/JsonConverter.bas, but I think you also need to Tools>Reference it (which will error, ignore it as otherwise I couldnt get it to run on two machines)
 
 **Rundown**
 Thyqby Library example modified to show index.html, which loads long json (saved to a .js file in a javascript varaible) and then displays images from a directory, allowing categorization and other search terms, as well as a multi file visual display.  Requires SVG or other somewhat normalized images (automation scripts /steps may be provided at a later date for adobe suite).
