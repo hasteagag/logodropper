@@ -133,6 +133,15 @@
                 img.src = imageSourcesCategoriesMeta.data[i].src;
                 img.alt = imageSourcesCategoriesMeta.data[i].metadata.search;
                 img.title = imageSourcesCategoriesMeta.data[i].metadata.search;
+
+                // Add data-affiliatedFile attribute if affiliated_file exists
+                if (imageSourcesCategoriesMeta.data[i].metadata.affiliated_file) {
+                    var filePath = imageSourcesCategoriesMeta.data[i].metadata.affiliated_file;
+                    // Replace backslashes with slashes and encode the file path
+                    var encodedFilePath = 'file:///' + encodeURI(filePath.replace(/\\/g, '/'));
+                    img.setAttribute('data-affiliatedFile', encodedFilePath);
+                }
+
                 //categories are more involved as there are somtimes multiple
                 var categories = imageSourcesCategoriesMeta.data[i].metadata.categories;
                 var categoriesArray = (categories || '').split(' '); // Split the categories string by spaces into an array
@@ -147,8 +156,16 @@
                 div.appendChild(img);
                 div.addEventListener('click', function(event) {
                     obj = window.chrome.webview.hostObjects.ahk;
+                    // // Get the src of the img contained within the div
+                    // (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
+
                     // Get the src of the img contained within the div
-                    (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
+                    var target = event.target;
+                    var src = target.getAttribute('data-affiliatedFile') || target.src;
+                    if (!src && target.firstChild) {
+                        src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
+                    }
+                    obj.func(src);
                 });
                 container.appendChild(div);
             }
@@ -269,7 +286,12 @@
                 div.addEventListener('click', function(event) {
                     obj = window.chrome.webview.hostObjects.ahk;
                     // Get the src of the img contained within the div
-                    (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
+                    var target = event.target;
+                    var src = target.getAttribute('data-affiliatedFile') || target.src;
+                    if (!src && target.firstChild) {
+                        src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
+                    }
+                    obj.func(src);
                 });
                 container.appendChild(div);
             });
@@ -373,10 +395,10 @@
 </head>
 <body>
     <nav class="upper">
-        <label for="search-box">Search:</label>
+        <span>Search:</span>
         <input type="input" value="" class="search-box" />
         <span class="search-button">just start typing!</span>
-        <label for="buttons" style="margin-left: 5%;"><em>Search by only one of the following: </em></label>
+        <span style="margin-left: 5%;"><em>Search by only one of the following: </em></span>
         <input type="button" value="File" class="search-filename" title="Click here to search by file name matching only" data-toggled="true"/>
         <input type="button" value="Terms" class="search-meta" title="Click here to search only by hidden search terms - hover over an image to see its search terms" data-toggled="false"/>
         <input type="button" value="Cat." class="search-categories" title="Click here to search only by categories, among those you see at the bottom in blue" data-toggled="false"/>
