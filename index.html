@@ -154,18 +154,19 @@
                 (categories) ? img.classList.add(categories) : "";
 
                 div.appendChild(img);
+                let debounceTimer;
                 div.addEventListener('click', function(event) {
-                    obj = window.chrome.webview.hostObjects.ahk;
-                    // // Get the src of the img contained within the div
-                    // (event.target.src) ? obj.func(event.target.src) : obj.func(event.target.firstChild.src);
-
-                    // Get the src of the img contained within the div
-                    var target = event.target;
-                    var src = target.getAttribute('data-affiliatedFile') || target.src;
-                    if (!src && target.firstChild) {
-                        src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
-                    }
-                    obj.func(src);
+                   clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        obj = window.chrome.webview.hostObjects.ahk;
+                        // Get the src of the img contained within the div
+                        var target = event.target;
+                        var src = target.getAttribute('data-affiliatedFile') || target.src;
+                        if (!src && target.firstChild) {
+                            src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
+                        }
+                        obj.func(src);
+                    }, 1000);
                 });
                 container.appendChild(div);
             }
@@ -283,15 +284,19 @@
                 // Add the modified categories string as a class if defined
                 (categories) ? img.classList.add(categories) : "";
                 div.appendChild(img);
+                let debounceTimer;
                 div.addEventListener('click', function(event) {
-                    obj = window.chrome.webview.hostObjects.ahk;
-                    // Get the src of the img contained within the div
-                    var target = event.target;
-                    var src = target.getAttribute('data-affiliatedFile') || target.src;
-                    if (!src && target.firstChild) {
-                        src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
-                    }
-                    obj.func(src);
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        obj = window.chrome.webview.hostObjects.ahk;
+                        // Get the src of the img contained within the div
+                        var target = event.target;
+                        var src = target.getAttribute('data-affiliatedFile') || target.src;
+                        if (!src && target.firstChild) {
+                            src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
+                        }
+                        obj.func(src);
+                    }, 1000);
                 });
                 container.appendChild(div);
             });
