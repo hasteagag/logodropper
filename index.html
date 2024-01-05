@@ -110,76 +110,27 @@
     <script>
         var imagesPerPage = 36; // Change this to display more or fewer images per page
         var currentPage = 1;
-        var container;    // Define the variable at the top level
+        var container;
         var filteredImagesBy_categories;
-        
+        var searchBox;
+
         function hideImages() {
             container.innerHTML = '';
-            // Remove all existing images from the container
-            // while (container.firstChild) {
-            //     container.removeChild(container.firstChild);
-            // }
-            //we might look at this later to manually remove event listeners if that ends up being an obvious problem, but for now, just clear the container
         }
-        function displayImages() {
+        function paginateImages(currentPage, imagesPerPage) {
             // Calculate the start and end indices for the images to display
             var start = (currentPage - 1) * imagesPerPage;
             var end = start + imagesPerPage;
-            // Add the images for the current page to the container
-            for (var i = start; i < end && i < imageSourcesCategoriesMeta.data.length; i++) {
-                var div = document.createElement('div');
-                div.className = 'centerImg';
-                var img = document.createElement('img');
-                img.src = imageSourcesCategoriesMeta.data[i].src;
-                img.alt = imageSourcesCategoriesMeta.data[i].metadata.search;
-                img.title = imageSourcesCategoriesMeta.data[i].metadata.search;
-
-                // Add data-affiliatedFile attribute if affiliated_file exists
-                if (imageSourcesCategoriesMeta.data[i].metadata.affiliated_file) {
-                    var filePath = imageSourcesCategoriesMeta.data[i].metadata.affiliated_file;
-                    // Replace backslashes with slashes and encode the file path
-                    var encodedFilePath = 'file:///' + encodeURI(filePath.replace(/\\/g, '/'));
-                    img.setAttribute('data-affiliatedFile', encodedFilePath);
-                }
-
-                //categories are more involved as there are somtimes multiple
-                var categories = imageSourcesCategoriesMeta.data[i].metadata.categories;
-                var categoriesArray = (categories || '').split(' '); // Split the categories string by spaces into an array
-                // Wrap each word in quotes and join them back with spaces
-                categories = categoriesArray.map(function(word) {
-                    return word;
-                }).join(',');
-
-                // Add the modified categories string as a class if defined
-                (categories) ? img.classList.add(categories) : "";
-
-                div.appendChild(img);
-                let debounceTimer;
-                div.addEventListener('click', function(event) {
-                   clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        obj = window.chrome.webview.hostObjects.ahk;
-                        // Get the src of the img contained within the div
-                        var target = event.target;
-                        var src = target.getAttribute('data-affiliatedFile') || target.src;
-                        if (!src && target.firstChild) {
-                            src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
-                        }
-                        obj.func(src);
-                    }, 1000);
-                });
-                container.appendChild(div);
-            }
-            document.querySelector('#page-count').innerText = currentPage + ' of ' + Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage);
+            return imageSourcesCategoriesMeta.data.slice(start, end);
         }
-        
+        function triggerInputEvent() {
+            searchBox.dispatchEvent(new Event('input'));
+        }
         document.addEventListener("DOMContentLoaded", function() {
-            var searchBox = document.querySelector('.search-box');
-            function triggerInputEvent() {
-               searchBox.dispatchEvent(new Event('input'));
-            }
+            searchBox = document.querySelector('.search-box');
             container = document.getElementById('image-container');
-            displayImages();    // Call displayImages to display the first page of images
+            processImages(paginateImages(currentPage, imagesPerPage));    // Display the first page of images
+            document.querySelector('#page-count').innerText = currentPage + ' of ' + Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage);
             var categories = ["flex", "Gas-Convenience", "auto", "grocery", "QSR", "cell", "roads", "hardware", "medical", "uncommon", "mall", "gym", "furniture", "bank", "home", "service", "hotel-motel", "brokerage", "RX", "clothing", "DollarStores", "big-box", "banks", "retail", "landmark"];
             var buttoncontainer = document.getElementById('button-container');
             categories.forEach(function(category) {
@@ -194,8 +145,7 @@
                     filteredImagesBy_categories = imageSourcesCategoriesMeta.data.filter(function(image) {
                         return image.metadata && image.metadata.categories && image.metadata.categories.toLowerCase().includes(category.toLowerCase());
                     });
-                    // Clear the image container defined above
-                    container.innerHTML = '';
+                    hideImages(); // Clear the image container
                     processImages(filteredImagesBy_categories);
                     // Get all buttons
                     var buttons = document.querySelectorAll('button');
@@ -221,7 +171,7 @@
                 if (currentPage!=1) {
                     hideImages();
                     currentPage=1;
-                    displayImages();
+                    processImages(paginateImages(currentPage, imagesPerPage));
                 }
                 else {
                     showNotification("You are already on the first page");
@@ -232,7 +182,7 @@
                 if (currentPage > 1) {
                     hideImages();
                     currentPage--;
-                    displayImages();
+                    processImages(paginateImages(currentPage, imagesPerPage));
                 }
                 else {
                     showNotification("You are already on the first page");
@@ -243,7 +193,7 @@
                 if (currentPage <= Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage) - 1) {
                     hideImages();
                     currentPage++;
-                    displayImages();
+                    processImages(paginateImages(currentPage, imagesPerPage));
                 }
                 else {
                     showNotification("You are already on the last page.");
@@ -254,7 +204,7 @@
                 if (currentPage!=Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage)) {
                     hideImages();
                     currentPage=Math.ceil(imageSourcesCategoriesMeta.data.length / imagesPerPage);
-                    displayImages();
+                    processImages(paginateImages(currentPage, imagesPerPage));
                 }
                 else {
                     showNotification("You are already on the last page.");
@@ -273,7 +223,17 @@
                 div.className = 'centerImg';
                 var img = document.createElement('img');
                 img.src = image.src;
-                img.alt = image.metadata.search;                
+                img.alt = image.metadata.search;
+                img.title = image.metadata.search;
+                
+                // Add data-affiliatedFile attribute if affiliated_file exists
+                if (image.metadata.affiliated_file) {
+                    var filePath = image.metadata.affiliated_file;
+                    // Replace backslashes with slashes and encode the file path
+                    var encodedFilePath = 'file:///' + encodeURI(filePath.replace(/\\/g, '/'));
+                    img.setAttribute('data-affiliatedFile', encodedFilePath);
+                }
+
                 var categories = image.metadata.categories;
                 //split on space to get array of categories if any
                 var categoriesArray = (categories || '').split(' ');
@@ -295,6 +255,10 @@
                         if (!src && target.firstChild) {
                             src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
                         }
+                        searchBox.value = '';
+                        // triggerInputEvent(); //this will end up showing all images again
+                        hideImages();
+                        processImages(paginateImages(currentPage, imagesPerPage));
                         obj.func(src);
                     }, 1000);
                 });
@@ -335,6 +299,7 @@
                 var otherButton = document.querySelector(otherButtonClass);
                 otherButton.setAttribute('data-toggled', 'false');
             });
+            triggerInputEvent(); //forces search type switch to update
         }
 
         document.querySelector('.search-meta').addEventListener('click', function() {
@@ -377,7 +342,7 @@
                 //set pagination back up, dont issue a click, use functions
                 hideImages();
                 currentPage=1;
-                displayImages();
+                processImages(paginateImages(currentPage, imagesPerPage));
                 document.querySelectorAll('nav.lower button').forEach(function(button) {
                     button.setAttribute('data-toggled', 'false');
                 });
@@ -394,6 +359,7 @@
             if (event.altKey && event.key === 'c') {
                 document.querySelector('.search-categories').click();
             }
+            // If Enter is pressed, check if there is only one result, then dispatch a click action
         });
     });
     </script>
