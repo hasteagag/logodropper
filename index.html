@@ -325,23 +325,25 @@
 
         document.addEventListener('keydown', function(event) {
             var searchBox = document.querySelector('.search-box');
+
+            // if (document.activeElement !== searchBox) {
+            //     // Ignore special keys
+            //     if (event.key.length === 1 || event.key === 'Backspace') {
+            //         searchBox.focus();
+            //         searchBox.value += event.key;
+            //         event.preventDefault();
+            //         triggerInputEvent();
+            //     }
+            // }
+            //event.key === 'Delete'
             if (document.activeElement !== searchBox) {
-                // Ignore special keys
-                if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
-                    searchBox.focus();
-                    searchBox.value += event.key;
+                if (event.key === 'ArrowLeft') {
+                    document.getElementById('prev-button').click();
                     event.preventDefault();
-                    triggerInputEvent();
                 }
-                if (document.activeElement !== searchBox) {
-                    if (event.key === 'ArrowLeft') {
-                        document.getElementById('prev-button').click();
-                        event.preventDefault();
-                    }
-                    if (event.key === 'ArrowRight') {
-                        document.getElementById('next-button').click();
-                        event.preventDefault();
-                    }
+                if (event.key === 'ArrowRight') {
+                    document.getElementById('next-button').click();
+                    event.preventDefault();
                 }
             }
             // If Escape key is pressed, clear the searchBox
