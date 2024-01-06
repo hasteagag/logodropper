@@ -245,25 +245,34 @@
                 (categories) ? img.classList.add(categories) : "";
                 div.appendChild(img);
                 let debounceTimer;
+                let isFirstClick = true;
                 div.addEventListener('click', function(event) {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        obj = window.chrome.webview.hostObjects.ahk;
-                        // Get the src of the img contained within the div
-                        var target = event.target;
-                        var src = target.getAttribute('data-affiliatedFile') || target.src;
-                        if (!src && target.firstChild) {
-                            src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
-                        }
-                        searchBox.value = '';
-                        // triggerInputEvent(); //this will end up showing all images again
-                        hideImages();
-                        processImages(paginateImages(currentPage, imagesPerPage));
-                        obj.func(src);
-                    }, 1000);
+                    if (isFirstClick) {
+                        processEvent(event);
+                        isFirstClick = false;
+                    } else {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            processEvent(event);
+                        }, 1000);
+                    }
                 });
                 container.appendChild(div);
             });
+        }
+        function processEvent(event) {
+            obj = window.chrome.webview.hostObjects.ahk;
+            // Get the src of the img contained within the div
+            var target = event.target;
+            var src = target.getAttribute('data-affiliatedFile') || target.src;
+            if (!src && target.firstChild) {
+                src = target.firstChild.getAttribute('data-affiliatedFile') || target.firstChild.src;
+            }
+            searchBox.value = '';
+            // triggerInputEvent(); //this will end up showing all images again
+            hideImages();
+            processImages(paginateImages(currentPage, imagesPerPage));
+            obj.func(src);
         }
         searchBox.addEventListener('input', function(event) {
             //default to src
