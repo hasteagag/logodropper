@@ -60,7 +60,7 @@
             text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.75);
         }
         /* Default style */
-        .search-meta, .search-categories,.search-filename {
+        .search-meta, .search-categories,.search-filename,.ai,.ps,.copy {
             width: 4%;
             background-color: #f8f9fa;
             color: #333;
@@ -69,6 +69,26 @@
             cursor: pointer;
             border-radius: 4px;
         }
+        
+        /* AHK side Function Buttons */
+        .ai {
+            background-color: #330000;
+            border: 3px solid #ff9a00;
+            color:#ff9a00;
+            font-weight: bold;
+        }
+        .ps {
+            background-color: #001e36;
+            border: 3px solid #31a8ff;
+            color:#31a8ff;
+            font-weight: bold;
+        }
+        .copy {
+            background-color: #333;
+            border: 3px solid #55FF55;
+            color:#55FF55;
+        }
+
         /* Style when toggled */
         .search-meta[data-toggled="true"], .search-categories[data-toggled="true"], .search-filename[data-toggled="true"] {
             background-color: #217521;
@@ -88,6 +108,25 @@
         {
             box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.33);
         }
+        .ai[data-toggled="true"] {
+            box-shadow: inset 5px 5px 3px rgba(0, 0, 0, 0.5);
+            border: 3px dashed #ff9a00;
+        }
+        .ps[data-toggled="true"] {
+            box-shadow: inset 5px 5px 3px rgba(0, 0, 0, 0.5);
+            border: 3px dashed #31a8ff;
+        }
+        .copy[data-toggled="true"] {
+            box-shadow: inset 5px 5px 3px rgba(0, 0, 0, 0.5);
+            border: 3px dashed #686b6e;
+        }
+        button[data-toggled="true"].copy {
+            box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.33);
+            background-color: #333;
+            border: 2px solid #55FF55;
+            color:#55FF55;
+        }
+
         button:not(nav.lower button) {
             border-radius: 4px;
         }
@@ -272,7 +311,19 @@
             // triggerInputEvent(); //this will end up showing all images again
             hideImages();
             processImages(paginateImages(currentPage, imagesPerPage));
-            obj.func(src);
+            // If the PS button is toggled, call the AHK function to place the image in Photoshop, likewise in Ai and Copy
+            if (document.querySelector('.ps').getAttribute('data-toggled') === 'true') {
+                obj.func(src,"Photoshop");
+            }
+            else if (document.querySelector('.ai').getAttribute('data-toggled') === 'true') {
+                obj.func(src,"Illustrator");
+            }
+            else if (document.querySelector('.copy').getAttribute('data-toggled') === 'true') {
+                obj.func(src,"Copy");
+            }
+            else { 
+                console.log("No function selected");
+            }
         }
         searchBox.addEventListener('input', function(event) {
             //default to src
@@ -300,7 +351,7 @@
             }
             processImages(imagesToProcess);
         });
-        function toggleButton(buttonClass, otherButtonClasses) {
+        function toggleButton(buttonClass, otherButtonClasses,noUpdate=false) {
             var button = document.querySelector(buttonClass);
             button.setAttribute('data-toggled', 'true');
 
@@ -308,17 +359,27 @@
                 var otherButton = document.querySelector(otherButtonClass);
                 otherButton.setAttribute('data-toggled', 'false');
             });
-            triggerInputEvent(); //forces search type switch to update
+            //we can check if the search box is empty and if so, don't triggerInputEvent() to keep pagination
+            (noUpdate || searchBox.value == '') ? "" : triggerInputEvent(); //forces search type switch to update
         }
+        // Event listener for AHK function buttons
+        document.querySelector('.ps').addEventListener('click', function() {
+            toggleButton('.ps', ['.ai', '.copy'],true);
+        });
+        document.querySelector('.ai').addEventListener('click', function() {
+            toggleButton('.ai', ['.ps', '.copy'],true);
+        });
+        document.querySelector('.copy').addEventListener('click', function() {
+            toggleButton('.copy', ['.ps', '.ai'],true);
+        });
 
+        // Event listener for search modes
         document.querySelector('.search-meta').addEventListener('click', function() {
             toggleButton('.search-meta', ['.search-categories', '.search-filename']);
         });
-
         document.querySelector('.search-categories').addEventListener('click', function() {
             toggleButton('.search-categories', ['.search-meta', '.search-filename']);
         });
-
         document.querySelector('.search-filename').addEventListener('click', function() {
             toggleButton('.search-filename', ['.search-meta', '.search-categories']);
         });
@@ -370,6 +431,18 @@
             if (event.altKey && event.key === 'c') {
                 document.querySelector('.search-categories').click();
             }
+            // If Alt + P is pressed
+            if (event.altKey && event.key === 'p') {
+                document.querySelector('.ps').click();
+            }
+            // If Alt + A is pressed
+            if (event.altKey && event.key === 'a') {
+                document.querySelector('.ai').click();
+            }
+            // If Alt + O is pressed
+            if (event.altKey && event.key === 'o') {
+                document.querySelector('.copy').click();
+            }
             // If Enter is pressed, check if there is only one result, then dispatch a click action
         });
     });
@@ -384,6 +457,10 @@
         <input type="button" value="File" class="search-filename" title="Click here to search by file name matching only" data-toggled="true"/>
         <input type="button" value="Terms" class="search-meta" title="Click here to search only by hidden search terms - hover over an image to see its search terms" data-toggled="false"/>
         <input type="button" value="Cat." class="search-categories" title="Click here to search only by categories, among those you see at the bottom in blue" data-toggled="false"/>
+        <!-- begin AHK side function buttons -->
+        <input type="button" value="Ps" class="PS" title="Select to place in Adobe Photoshop" data-toggled="true"/>
+        <input type="button" value="Ai" class="AI" title="Select to place in Adobe Illustrator" data-toggled="false"/>
+        <input type="button" value="PathOnly" class="Copy" title="Select to copy image path to clipboard" data-toggled="false"/>
     </nav>
     <div id="image-container"></div>
     <nav class="lower">
