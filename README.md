@@ -18,5 +18,7 @@ Excel file generates the JSON in VBA using VBA-JSON's JsonConverter, splitting t
 
 You will need to check paths yourself, but presently index.html is expected to be saved in c:\tmp\logos\ along with imageSourcesCategoriesMeta.js (and ofc in a general solution, this could be renamed to something less horrid).  For performance reasons, its possibly advantageous to keep the images in the same directory.  Have fun and do something cooler with the images, or add features to logodropper!
 
+You will need to set the path to the JSX files as well as the vbs file.
+
 Here is an example of what the interface looks like:
 ![logodropperexample](https://github.com/hasteagag/logodropper/assets/49802378/89912989-a9fa-4d99-9f2b-0cf5ce020707)
