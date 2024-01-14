@@ -17,3 +17,6 @@ Thyqby Library example modified to show index.html, which loads long json (saved
 Excel file generates the JSON in VBA using VBA-JSON's JsonConverter, splitting the string if needed (in that instance, you need to copy and assemble the string manually).  I believe the excel VBA requires "Microsoft Scripting Runtime" reference.
 
 You will need to check paths yourself, but presently index.html is expected to be saved in c:\tmp\logos\ along with imageSourcesCategoriesMeta.js (and ofc in a general solution, this could be renamed to something less horrid).  For performance reasons, its possibly advantageous to keep the images in the same directory.  Have fun and do something cooler with the images, or add features to logodropper!
+
+Here is an example of what the interface looks like:
+![logodropperexample](https://github.com/hasteagag/logodropper/assets/49802378/89912989-a9fa-4d99-9f2b-0cf5ce020707)
