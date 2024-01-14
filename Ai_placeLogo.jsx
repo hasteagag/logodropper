@@ -1,10 +1,6 @@
 //arguments[0]; //this will be logo
-//arguments[1]; //this will be the of document scale
-//#target Illustrator
-// placedItem.file = new File("d:\\scanned pics\\logos\\Costco Logo.ai");
-// placedItem.file = new File(arguments[0],arguments[1]);
-// placedItem.file = new File("C:\\tmp\\logos\\rasterout\\eastern mountain sports.jpg");
-// placedItem.file = new File("C:\\tmp\\logos\\SVG\\Aldi Rectangular.svg");
+// placedItem.file = new File("C:\\tmp\\logos\\rasterout\\eastern mountain.jpg");
+// placedItem.file = new File("C:\\tmp\\logos\\SVG\\SomethingRectangular.svg");
 
 var doc = app.activeDocument;
 //need to check if the file is a vector or raster:
@@ -40,13 +36,3 @@ else {
         placedItem.width = placedItem.height * aspectRatio;
     }
 }
-
-
-// placedItem.file = doc.groupItems.createFromFile(svgFile); //maybe
-
-//new File("",arguments[0]);
-//alert("height of placed item is: " + placedItem.height + " pts x width of: "  + placedItem.width + " pts");
-
-
-// 792/2=396 pt is half height of letter
-// 612/2=306 pt is half width of letter
