@@ -9,12 +9,12 @@ wrapRun(filePath,application:="Photoshop") {
     switch (application)
     {
         case "Photoshop":
-            Run("c:\\users\\asmith\\desktop\\runjavascript.vbs c:\\users\\asmith\\desktop\\placeLogo.jsx " filePath "")
+            Run("c:\\users\\username\\desktop\\runjavascript.vbs c:\\users\\asmith\\desktop\\placeLogo.jsx " filePath "")
             WinActivate("ahk_class Photoshop ahk_exe Photoshop.exe")
         case "Illustrator":
             filePath:=StrReplace(filePath,"file:///","")
             filePath:=StrReplace(filePath,"/","\\") ;not sure if we need either of these but its working
-            Run("c:\\users\\asmith\\desktop\\runjavascriptAI.vbs c:\\users\\asmith\\desktop\\Ai_placeLogo.jsx " filePath "")
+            Run("c:\\users\\username\\desktop\\runjavascriptAI.vbs c:\\users\\asmith\\desktop\\Ai_placeLogo.jsx " filePath "")
             WinActivate("ahk_class illustrator ahk_exe Illustrator.exe")
         case "Copy":
             global pathFromCopy:=filePath
