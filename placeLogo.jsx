@@ -6,8 +6,6 @@
 // for( n = 0 ; n < arguments.length; n++ ){ 
 	// alert("argument("+ n+")= " + arguments[n]); 
 // } 
-
-
 // =======================================================
 var idPlc = charIDToTypeID( "Plc " );
     var desc40 = new ActionDescriptor();
@@ -34,6 +32,7 @@ var idPlc = charIDToTypeID( "Plc " );
     var idIdnt = charIDToTypeID( "Idnt" );
     desc40.putInteger( idIdnt, 8 );
     var idnull = charIDToTypeID( "null" );
+    // desc40.putPath( idnull, new File( arguments[0] ) );
     desc40.putPath( idnull, new File( arguments[0] ) );
     var idFTcs = charIDToTypeID( "FTcs" );
     var idQCSt = charIDToTypeID( "QCSt" );
@@ -52,5 +51,3 @@ var idPlc = charIDToTypeID( "Plc " );
     var idAntA = charIDToTypeID( "AntA" );
     desc40.putBoolean( idAntA, true );
 executeAction( idPlc, desc40, DialogModes.NO );
-
-    //desc40.putPath( idnull, new File( "D:\\scanned pics\\Logos\\Family Dollar Vector Logo Best.ai" ) );
