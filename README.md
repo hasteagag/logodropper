@@ -29,3 +29,4 @@ Here is an example of what the interface looks like:
 ![logodropperexample](https://github.com/hasteagag/logodropper/assets/49802378/89912989-a9fa-4d99-9f2b-0cf5ce020707)
 
 And a brief example video with what I hope are open icons from wikipedia (although my use case is much more broad):
+https://youtu.be/tfXBqEfG1ic
