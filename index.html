@@ -300,6 +300,8 @@
             });
         }
         function processEvent(event) {
+            // console.log("processEvent started [Date.now()]:\n");
+            // console.log(Date.now());
             obj = window.chrome.webview.hostObjects.ahk;
             // Get the src of the img contained within the div
             var target = event.target;
@@ -324,6 +326,9 @@
             else { 
                 console.log("No function selected");
             }
+            // console.log("processEvent ended [Date.now()]:\n");
+            // console.log(Date.now());
+            //whole function had like a 4ms delta so this aint the problem
         }
         searchBox.addEventListener('input', function(event) {
             //default to src
