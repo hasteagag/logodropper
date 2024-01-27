@@ -1,5 +1,5 @@
 # logodropper
-proof of concept for logo multi search (visual, text, filename, category), AHK v2, HTML CSS JS
+proof of concept for logo multi search (visual, text, filename, category), uses Thqby's AHK v2 WebView2 wrapper for modern web, then basic HTML, CSS, JS to display and search the logos (files/ assets)
 
 Requires each of the following:
 
