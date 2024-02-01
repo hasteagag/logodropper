@@ -287,13 +287,12 @@
                 let isFirstClick = true;
                 div.addEventListener('click', function(event) {
                     if (isFirstClick) {
-                        processEvent(event);
+                        // processEvent(event);
+                        console.log("processEvent started [Date.now()]:\n");
                         isFirstClick = false;
-                    } else {
-                        clearTimeout(debounceTimer);
                         debounceTimer = setTimeout(() => {
-                            processEvent(event);
-                        }, 1000);
+                            isFirstClick = true;
+                        }, 800);
                     }
                 });
                 container.appendChild(div);
